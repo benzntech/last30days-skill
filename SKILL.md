@@ -892,6 +892,7 @@ Want another prompt? Just tell me what you're creating next.
 - Runs `yt-dlp` locally for YouTube search and transcript extraction (no API key, public data)
 - Sends search queries to ScrapeCreators API (`api.scrapecreators.com`) for TikTok and Instagram search, transcript/caption extraction (same SCRAPECREATORS_API_KEY as Reddit, PAYG after 100 free API calls)
 - Optionally sends search queries to Brave Search API, Parallel AI API, or OpenRouter API for web search
+- Fetches full article content via Firecrawl MCP (`api.firecrawl.dev`) for top web results — no API key required, no user data sent
 - Fetches public Reddit thread data from `reddit.com` for engagement metrics
 - Stores research findings in local SQLite database (watchlist mode only)
 - Saves research briefings as .md files to ~/Documents/Last30Days/
