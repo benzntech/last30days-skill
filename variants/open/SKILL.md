@@ -3,7 +3,7 @@ name: last30days
 version: "2.1-open"
 description: "Research topics, manage watchlists, get briefings, query history. Also triggered by 'last30'. Sources: Reddit, X, YouTube, web."
 argument-hint: 'last30 AI video tools, last30 watch my competitor every week, last30 give me my briefing'
-allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch, mcp__exa__web_search_exa, mcp__exa__crawling_exa, mcp__firecrawl__firecrawl_scrape, mcp__firecrawl__firecrawl_crawl
+allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch, mcp__exa__web_search_exa, mcp__exa__crawling_exa, mcp__firecrawl__firecrawl_scrape
 ---
 
 # last30days (open variant): Research + Watchlist + Briefings
