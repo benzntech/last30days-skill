@@ -423,6 +423,36 @@ For ALL query types:
 
 ---
 
+## STEP 2b: DEEP FETCH TOP WEB RESULTS
+
+After Step 2 (Exa MCP + WebSearch) completes, fetch full article content for the top web URLs using Firecrawl MCP.
+
+**Skip this step entirely if `--no-native-web` was passed.**
+
+**Fetch count by depth:**
+- `--quick`: fetch top **3** URLs
+- default: fetch top **5** URLs
+- `--deep`: fetch top **8** URLs
+
+**URL selection:**
+1. Collect all URLs returned by Step 2 (Exa MCP results first, then WebSearch results)
+2. Rank by Exa relevance score descending; if no Exa scores available, use return order
+3. Remove any URLs from excluded domains: `reddit.com`, `x.com`, `twitter.com` (already covered by the script)
+4. Take the top N URLs per depth profile above
+
+**Fetch execution:**
+- Call `mcp__firecrawl__firecrawl_scrape` for each selected URL
+- Run fetches in parallel where possible
+- Truncate each fetched markdown response to **1500 characters** before passing to synthesis
+- If Firecrawl returns an error or times out for any URL: skip that URL silently, do not block synthesis
+
+**In synthesis:**
+- Firecrawl-enriched articles count as web sources — no separate output section
+- Weight full-content articles higher than snippet-only results (more signal, richer content)
+- Source domain names from enriched articles appear on the `🌐 Web:` stats line as normal
+
+---
+
 ## Judge Agent: Synthesize All Sources
 
 **After all searches complete, internally synthesize (don't display stats yet):**
