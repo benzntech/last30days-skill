@@ -425,7 +425,7 @@ For ALL query types:
 
 ## STEP 2b: DEEP FETCH TOP WEB RESULTS
 
-After Step 2 (Exa MCP + WebSearch) completes, fetch full article content for the top web URLs using Firecrawl MCP.
+After Step 2 (WebSearch) completes, fetch full article content for the top web URLs using Firecrawl MCP.
 
 **Skip this step entirely if `--no-native-web` was passed.**
 
@@ -435,10 +435,10 @@ After Step 2 (Exa MCP + WebSearch) completes, fetch full article content for the
 - `--deep`: fetch top **8** URLs
 
 **URL selection:**
-1. Collect all URLs returned by Step 2 (Exa MCP results first, then WebSearch results)
-2. Rank by Exa relevance score descending; if no Exa scores available, use return order
-3. Remove any URLs from excluded domains: `reddit.com`, `x.com`, `twitter.com` (already covered by the script)
-4. Take the top N URLs per depth profile above
+1. Collect all URLs returned by Step 2 in the order they were returned
+2. Remove any URLs from excluded domains: `reddit.com`, `x.com`, `twitter.com` (already covered by the script)
+3. Take the top N URLs per depth profile above
+4. If no eligible URLs remain after domain exclusion, skip the fetch phase and proceed to synthesis
 
 **Fetch execution:**
 - Call `mcp__firecrawl__firecrawl_scrape` for each selected URL
@@ -448,7 +448,7 @@ After Step 2 (Exa MCP + WebSearch) completes, fetch full article content for the
 
 **In synthesis:**
 - Firecrawl-enriched articles count as web sources — no separate output section
-- Weight full-content articles higher than snippet-only results (more signal, richer content)
+- Treat Firecrawl-enriched articles as higher quality than snippet-only WebSearch results (they have full content, not just a teaser) — rank them above snippet-only sources but still below Reddit/X/YouTube which have engagement signals
 - Source domain names from enriched articles appear on the `🌐 Web:` stats line as normal
 
 ---
