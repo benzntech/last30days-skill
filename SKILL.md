@@ -3,7 +3,7 @@ name: last30days
 version: "2.9.6"
 description: "Deep research engine covering the last 30 days across 10+ sources - Reddit, X/Twitter, YouTube, TikTok, Instagram, Hacker News, Polymarket, and the web. AI synthesizes findings into grounded, cited reports."
 argument-hint: 'last30 AI video tools, last30 best project management tools'
-allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch
+allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch, mcp__exa__web_search_exa, mcp__exa__crawling_exa
 homepage: https://github.com/mvanhorn/last30days-skill
 repository: https://github.com/mvanhorn/last30days-skill
 author: mvanhorn
@@ -380,9 +380,16 @@ The script will automatically:
 
 ## STEP 2: DO WEBSEARCH AFTER SCRIPT COMPLETES
 
-After the script finishes, do WebSearch to supplement with blogs, tutorials, and news.
+After the script finishes, search the web to supplement with blogs, tutorials, and news.
 
-For **ALL modes**, do WebSearch to supplement (or provide all data in web-only mode).
+**Web search strategy — use BOTH tools for maximum coverage:**
+
+1. **`mcp__exa__web_search_exa`** — always available, no API key required. Semantic search, high quality. Run this first.
+2. **`WebSearch`** — Claude's built-in web search. Run this second for additional coverage.
+
+Run both in parallel where possible. Merge and deduplicate results before synthesis.
+
+For **ALL modes**, do web search to supplement (or provide all data in web-only mode).
 
 Choose search queries based on QUERY_TYPE:
 
