@@ -3,7 +3,7 @@ name: last30days
 version: "3.0.0"
 description: "Multi-query social search with intelligent planning. Agent plans queries when possible, falls back to Gemini/OpenAI when not. Research any topic across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, and the web."
 argument-hint: 'last30days AI video tools, last30days best noise cancelling headphones'
-allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch
+allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch, mcp__exa__web_search_exa, mcp__exa__crawling_exa, mcp__firecrawl__firecrawl_scrape, mcp__firecrawl__firecrawl_crawl
 homepage: https://github.com/mvanhorn/last30days-skill
 repository: https://github.com/mvanhorn/last30days-skill
 author: mvanhorn
