@@ -39,6 +39,7 @@ from . import (
     truthsocial,
     xai_x,
     xiaohongshu_api,
+    xquik,
     youtube_yt,
 )
 from .cluster import cluster_candidates
@@ -56,6 +57,7 @@ SEARCH_ALIAS = {
     "truth": "truthsocial",
     "web": "grounding",
     "xhs": "xiaohongshu",
+    "xquik": "xquik",
 }
 
 MAX_SOURCE_FETCHES: dict[str, int] = {"x": 2}
@@ -74,6 +76,7 @@ MOCK_AVAILABLE_SOURCES = [
     "xiaohongshu",
     "github",
     "perplexity",
+    "xquik",
 ]
 
 
@@ -117,6 +120,8 @@ def available_sources(config: dict[str, Any], requested_sources: list[str] | Non
         available.append("threads")
     if requested_sources and "pinterest" in requested_sources and env.is_pinterest_available(config):
         available.append("pinterest")
+    if env.is_xquik_available(config):
+        available.append("xquik")
     return available
 
 
@@ -935,6 +940,13 @@ def _retrieve_stream(
         ), {}
     if source == "perplexity":
         return perplexity.search(subquery.search_query, date_range, config, deep=config.get("_deep_research", False))
+    if source == "xquik":
+        result = xquik.search_xquik(
+            subquery.search_query, from_date, to_date,
+            depth=depth,
+            token=env.get_xquik_token(config),
+        )
+        return xquik.parse_xquik_response(result), {}
     raise RuntimeError(f"Unsupported source: {source}")
 
 
