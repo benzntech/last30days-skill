@@ -75,6 +75,12 @@ def _create_session(handle: str, app_password: str) -> Optional[str]:
         return None
 
 
+def _reset_session_cache() -> None:
+    global _cached_token, _session_error
+    _cached_token = None
+    _session_error = None
+
+
 def _extract_core_subject(topic: str) -> str:
     """Extract core subject from verbose query for Bluesky search."""
     from .query import extract_core_subject
@@ -129,12 +135,6 @@ def search_bluesky(
     if not handle or not app_password:
         return {"posts": [], "error": "Bluesky credentials not configured"}
 
-    # Authenticate
-    token = _create_session(handle, app_password)
-    if not token:
-        error_msg = _session_error or "Bluesky session creation failed (unknown error)"
-        return {"posts": [], "error": error_msg}
-
     count = DEPTH_CONFIG.get(depth, DEPTH_CONFIG["default"])
     core_topic = _extract_core_subject(topic)
 
@@ -148,20 +148,38 @@ def search_bluesky(
     }
     url = f"{BSKY_SEARCH_URL}?{urlencode(params)}"
 
-    try:
-        response = http.request(
-            "GET", url,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=30,
-        )
-    except http.HTTPError as e:
-        _log(f"Search failed: {e}")
-        if e.status_code == 403 and e.body and "cloudflare" in e.body.lower():
-            return {"posts": [], "error": "Bluesky search blocked by Cloudflare (403). This is a network-level block - try a different network or VPN."}
-        return {"posts": [], "error": f"Bluesky search failed: {e}"}
-    except Exception as e:
-        _log(f"Search failed: {e}")
-        return {"posts": [], "error": f"Bluesky search failed: {type(e).__name__}: {e}"}
+    def _auth_and_search() -> tuple[Optional[Dict[str, Any]], Optional[str]]:
+        token = _create_session(handle, app_password)
+        if not token:
+            error_msg = _session_error or "Bluesky session creation failed (unknown error)"
+            return None, error_msg
+        try:
+            response = http.request(
+                "GET", url,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=30,
+            )
+            return response, None
+        except http.HTTPError as e:
+            _log(f"Search failed: {e}")
+            if e.status_code == 401:
+                _reset_session_cache()
+                return None, "refresh"
+            if e.status_code == 403 and e.body and "cloudflare" in e.body.lower():
+                return None, "Bluesky search blocked by Cloudflare (403). This is a network-level block - try a different network or VPN."
+            return None, f"Bluesky search failed: {e}"
+        except Exception as e:
+            _log(f"Search failed: {e}")
+            return None, f"Bluesky search failed: {type(e).__name__}: {e}"
+
+    response, error_msg = _auth_and_search()
+    if error_msg == "refresh":
+        _log("Session expired; recreating token and retrying once")
+        response, error_msg = _auth_and_search()
+    if error_msg:
+        return {"posts": [], "error": error_msg}
+    if response is None:
+        return {"posts": [], "error": "Bluesky search failed (unknown error)"}
 
     posts = response.get("posts", [])
     _log(f"Found {len(posts)} posts")
