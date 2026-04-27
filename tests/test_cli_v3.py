@@ -12,7 +12,7 @@ from unittest import mock
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
+sys.path.insert(0, str(REPO_ROOT / "skills" / "last30days" / "scripts"))
 
 import last30days as cli
 from lib import schema
@@ -53,7 +53,7 @@ class CliV3Tests(unittest.TestCase):
 
     def test_mock_json_cli(self):
         result = subprocess.run(
-            [sys.executable, "scripts/last30days.py", "test topic", "--mock", "--emit=json"],
+            [sys.executable, "skills/last30days/scripts/last30days.py", "test topic", "--mock", "--emit=json"],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -76,6 +76,13 @@ class CliV3Tests(unittest.TestCase):
             cli.parse_search_flag("unknown")
         with self.assertRaises(SystemExit):
             cli.parse_search_flag(" , ")
+
+    def test_build_parser_accepts_days_alias_and_preserves_topic_tokens(self):
+        parser = cli.build_parser()
+        args, extra = parser.parse_known_args(["--days", "7", "biosecurity", "ai", "agents"])
+        self.assertEqual(7, args.lookback_days)
+        self.assertEqual(["biosecurity", "ai", "agents"], args.topic)
+        self.assertEqual([], extra)
 
     def test_ensure_supported_python_rejects_old_interpreter_with_actionable_error(self):
         stderr = io.StringIO()
@@ -127,6 +134,14 @@ class CliV3Tests(unittest.TestCase):
             self.assertEqual(".json", path.suffix)
             payload = json.loads(path.read_text())
             self.assertEqual("OpenClaw vs NanoClaw", payload["topic"])
+
+    def test_save_output_writes_utf8_encoded_markdown(self):
+        report = self.make_report()
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch("pathlib.Path.write_text", autospec=True, return_value=1) as write_text:
+                cli.save_output(report, "md", tmp)
+        _, kwargs = write_text.call_args
+        self.assertEqual("utf-8", kwargs.get("encoding"))
 
     def test_persist_report_updates_run_status_on_success_and_failure(self):
         report = self.make_report()
